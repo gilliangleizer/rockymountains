@@ -29,6 +29,7 @@ Always route these items to their assigned store unless the user specifies other
 | Meat sticks | Costco |
 | Baby tomatoes | Costco |
 | Asian ingredients | Indian/Asian/Arab Store |
+| Spices | Indian/Asian/Arab Store |
 
 ## Instructions
 
