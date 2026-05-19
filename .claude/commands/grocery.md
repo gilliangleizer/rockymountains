@@ -20,18 +20,20 @@ You have access to the family Notion shopping list. Use the Notion MCP tools to 
 - Other
 
 ## Item → Store Mappings
-Always route these items to their assigned store unless the user specifies otherwise:
+Always route these items/categories to their assigned store unless the user specifies otherwise:
 
 | Item | Store |
 |------|-------|
 | Milk | Costco |
 | Eggs | Costco |
 | Meat sticks | Costco |
+| Cheese sticks | Costco |
 | Baby tomatoes | Costco |
 | Asian ingredients | Indian/Asian/Arab Store |
 | Spices | Indian/Asian/Arab Store |
 | Coffee | Whole Foods |
 | Decaf coffee | Whole Foods |
+| Buckweat | Russian Store |
 
 ## Instructions
 
