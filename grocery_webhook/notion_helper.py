@@ -70,6 +70,13 @@ def add_item(item, store):
         blocks = _get_page_blocks()
     except RuntimeError as e:
         return str(e)
+
+    # Check for duplicate across all stores
+    for block in blocks:
+        if block["type"] == "bulleted_list_item":
+            if _block_text(block).strip().lower() == item.strip().lower():
+                return f"'{item}' is already on the list."
+
     insert_after_id = _find_insert_position(blocks, store)
 
     if not insert_after_id:
