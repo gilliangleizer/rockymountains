@@ -27,6 +27,7 @@ Always route these items to their assigned store unless the user specifies other
 | Milk | Costco |
 | Eggs | Costco |
 | Meat sticks | Costco |
+| Baby tomatoes | Costco |
 
 ## Instructions
 
