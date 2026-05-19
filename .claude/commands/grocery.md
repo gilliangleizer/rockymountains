@@ -30,6 +30,8 @@ Always route these items to their assigned store unless the user specifies other
 | Baby tomatoes | Costco |
 | Asian ingredients | Indian/Asian/Arab Store |
 | Spices | Indian/Asian/Arab Store |
+| Coffee | Whole Foods |
+| Decaf coffee | Whole Foods |
 
 ## Instructions
 
