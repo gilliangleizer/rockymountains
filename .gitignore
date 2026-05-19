@@ -1,0 +1,6 @@
+.env
+*.csv
+__pycache__/
+*.pyc
+chase_tracker/credentials.json
+chase_tracker/token.json
