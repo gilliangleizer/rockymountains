@@ -68,7 +68,8 @@ def add_item(item, store):
     insert_after_id = _find_insert_position(blocks, store)
 
     if not insert_after_id:
-        return f"Store '{store}' not found."
+        headings = [_block_text(b) for b in blocks if b["type"] == "heading_2"]
+        return f"Store '{store}' not found. Headings seen: {headings}"
 
     new_block = {
         "object": "block",
