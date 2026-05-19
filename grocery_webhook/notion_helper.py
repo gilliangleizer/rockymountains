@@ -114,7 +114,7 @@ def remove_item(item, store=None):
     return f"'{item}' not found on the list."
 
 
-def view_list():
+def view_list(store=None):
     blocks = _get_page_blocks()
     current_store = None
     sections = {}
@@ -128,10 +128,17 @@ def view_list():
             if text:
                 sections[current_store].append(text)
 
+    if store:
+        match = next((s for s in sections if _stores_match(s, store)), None)
+        if not match:
+            return f"No section found for '{store}'."
+        items = sections[match]
+        return f"{match}:\n" + "\n".join(f"  • {i}" for i in items) if items else f"{match}: (empty)"
+
     lines = []
-    for store, items in sections.items():
+    for s, items in sections.items():
         if items:
-            lines.append(f"{store}:")
+            lines.append(f"{s}:")
             lines.extend(f"  • {item}" for item in items)
 
     return "\n".join(lines) if lines else "Your shopping list is empty!"

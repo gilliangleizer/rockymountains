@@ -75,8 +75,13 @@ TOOLS = [
     },
     {
         "name": "view_list",
-        "description": "View the current shopping list organized by store",
-        "input_schema": {"type": "object", "properties": {}},
+        "description": "View the current shopping list. Optionally filter to a single store.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "store": {"type": "string", "description": "Optional — only show items for this store"},
+            },
+        },
     },
 ]
 
@@ -107,7 +112,7 @@ def webhook():
             elif tool_block.name == "remove_item":
                 results.append(remove_item(tool_block.input["item"], tool_block.input.get("store")))
             elif tool_block.name == "view_list":
-                results.append(view_list())
+                results.append(view_list(tool_block.input.get("store")))
         reply = "\n".join(results)
     else:
         text = next((b.text for b in response.content if b.type == "text"), "")
