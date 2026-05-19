@@ -41,7 +41,7 @@ Available stores: {', '.join(STORES)}
 Rules:
 - If the item matches a mapping (even loosely), use that store — do NOT ask.
 - If the user specifies a store (e.g. "add salsa to Trader Joe's"), use it.
-- If neither applies, reply asking which store. Do not call a tool.
+- If neither applies, use your best judgment based on the item's name and category to pick the most appropriate store from the list. Never ask — just add it and say which store you chose.
 - "what's on my list", "show list", "list" → call view_list.
 - Remove/delete requests → call remove_item.
 - Add requests with a known store → call add_item.
