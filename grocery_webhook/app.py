@@ -1,5 +1,6 @@
 import os
 import json
+from collections import defaultdict
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import anthropic
@@ -9,6 +10,7 @@ from notion_helper import add_item, remove_item, view_list
 load_dotenv()
 
 app = Flask(__name__)
+conversations = defaultdict(list)  # phone number → message history
 claude = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 ITEM_STORE_MAPPINGS = {
@@ -81,27 +83,39 @@ TOOLS = [
 @app.route("/webhook", methods=["POST"])
 def webhook():
     body = request.form.get("Body", "").strip()
+    from_number = request.form.get("From", "unknown")
+
+    history = conversations[from_number]
+    history.append({"role": "user", "content": body})
 
     response = claude.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=1024,
         system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
         tools=TOOLS,
-        messages=[{"role": "user", "content": body}],
+        messages=history,
     )
 
     reply = "Try: 'add milk', 'remove eggs', or 'show list'."
 
-    for block in response.content:
-        if block.type == "tool_use":
-            if block.name == "add_item":
-                reply = add_item(block.input["item"], block.input["store"])
-            elif block.name == "remove_item":
-                reply = remove_item(block.input["item"], block.input.get("store"))
-            elif block.name == "view_list":
-                reply = view_list()
-        elif block.type == "text" and block.text.strip():
-            reply = block.text.strip()
+    if response.stop_reason == "tool_use":
+        tool_block = next(b for b in response.content if b.type == "tool_use")
+        if tool_block.name == "add_item":
+            reply = add_item(tool_block.input["item"], tool_block.input["store"])
+        elif tool_block.name == "remove_item":
+            reply = remove_item(tool_block.input["item"], tool_block.input.get("store"))
+        elif tool_block.name == "view_list":
+            reply = view_list()
+    else:
+        text = next((b.text for b in response.content if b.type == "text"), "")
+        if text.strip():
+            reply = text.strip()
+
+    history.append({"role": "assistant", "content": [{"type": "text", "text": reply}]})
+
+    # Keep last 10 messages to avoid token bloat
+    if len(history) > 10:
+        conversations[from_number] = history[-10:]
 
     twiml = MessagingResponse()
     twiml.message(reply)
