@@ -45,6 +45,7 @@ Rules:
 - "what's on my list", "show list", "list" → call view_list.
 - Remove/delete requests → call remove_item.
 - Add requests with a known store → call add_item.
+- If the message has multiple lines, treat each line as a separate item. Call add_item for each line that has a known store. For lines with no known store, ask about them all at once at the end.
 - Keep replies short."""
 
 TOOLS = [
@@ -99,13 +100,15 @@ def webhook():
     reply = "Try: 'add milk', 'remove eggs', or 'show list'."
 
     if response.stop_reason == "tool_use":
-        tool_block = next(b for b in response.content if b.type == "tool_use")
-        if tool_block.name == "add_item":
-            reply = add_item(tool_block.input["item"], tool_block.input["store"])
-        elif tool_block.name == "remove_item":
-            reply = remove_item(tool_block.input["item"], tool_block.input.get("store"))
-        elif tool_block.name == "view_list":
-            reply = view_list()
+        results = []
+        for tool_block in (b for b in response.content if b.type == "tool_use"):
+            if tool_block.name == "add_item":
+                results.append(add_item(tool_block.input["item"], tool_block.input["store"]))
+            elif tool_block.name == "remove_item":
+                results.append(remove_item(tool_block.input["item"], tool_block.input.get("store")))
+            elif tool_block.name == "view_list":
+                results.append(view_list())
+        reply = "\n".join(results)
     else:
         text = next((b.text for b in response.content if b.type == "text"), "")
         if text.strip():
