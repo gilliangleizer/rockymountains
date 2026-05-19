@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 
 PAGE_ID = "fb227610-45cc-46c4-9a84-55cc25536e0a"
@@ -33,11 +34,20 @@ def _block_text(block):
     return "".join(t["plain_text"] for t in rich_text)
 
 
+def _stores_match(block_text, store_name):
+    if block_text.lower() == store_name.lower():
+        return True
+    # Fall back to checking all significant words appear (handles Notion text corruption)
+    words = [w for w in re.split(r'[^a-z]+', store_name.lower()) if len(w) > 2]
+    block_lower = block_text.lower()
+    return bool(words) and all(w in block_lower for w in words)
+
+
 def _find_insert_position(blocks, store_name):
     """Returns block ID to insert after for the given store section."""
     heading_idx = None
     for i, block in enumerate(blocks):
-        if block["type"] == "heading_2" and _block_text(block).lower() == store_name.lower():
+        if block["type"] == "heading_2" and _stores_match(_block_text(block), store_name):
             heading_idx = i
             break
 
@@ -88,7 +98,7 @@ def remove_item(item, store=None):
             current_store = _block_text(block)
         elif block["type"] == "bulleted_list_item":
             text = _block_text(block)
-            store_match = store is None or (current_store and store.lower() in current_store.lower())
+            store_match = store is None or (current_store and _stores_match(current_store, store))
             if item.lower() in text.lower() and store_match:
                 resp = requests.delete(f"{BASE_URL}/blocks/{block['id']}", headers=_headers())
                 if resp.status_code == 200:
