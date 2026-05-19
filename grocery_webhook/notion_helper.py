@@ -21,6 +21,8 @@ def _get_page_blocks():
     while True:
         resp = requests.get(url, headers=_headers(), params=params)
         data = resp.json()
+        if resp.status_code != 200:
+            raise RuntimeError(f"Notion API error {resp.status_code}: {data.get('message', data)}")
         blocks.extend(data.get("results", []))
         if not data.get("has_more"):
             break
@@ -64,7 +66,10 @@ def _find_insert_position(blocks, store_name):
 
 
 def add_item(item, store):
-    blocks = _get_page_blocks()
+    try:
+        blocks = _get_page_blocks()
+    except RuntimeError as e:
+        return str(e)
     insert_after_id = _find_insert_position(blocks, store)
 
     if not insert_after_id:
