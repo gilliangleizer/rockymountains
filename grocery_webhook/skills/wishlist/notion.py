@@ -43,18 +43,6 @@ def _get_blocks(page_id):
     return blocks
 
 
-def _get_all_items(page_id):
-    top_level = _get_blocks(page_id)
-    result = []
-    for block in top_level:
-        if block["type"] == "bulleted_list_item":
-            children = []
-            if block.get("has_children"):
-                children = [b for b in _get_blocks(block["id"]) if b["type"] == "bulleted_list_item"]
-            result.append({"block": block, "children": children})
-    return result
-
-
 def _block_text(block):
     block_type = block["type"]
     rich_text = block.get(block_type, {}).get("rich_text", [])
@@ -101,23 +89,19 @@ def view_wishlist(person):
         return f"No wishlist for '{person}'. Known: {', '.join(WISHLIST_PAGES.keys())}"
 
     try:
-        entries = _get_all_items(page_id)
+        blocks = _get_blocks(page_id)
     except RuntimeError as e:
         return str(e)
 
-    lines = []
-    for entry in entries:
-        text = _block_text(entry["block"]).strip()
-        if text:
-            lines.append(f"• {text}")
-        for child in entry["children"]:
-            child_text = _block_text(child).strip()
-            if child_text:
-                lines.append(f"  - {child_text}")
+    items = [
+        f"• {_block_text(b).strip()}"
+        for b in blocks
+        if b["type"] == "bulleted_list_item" and _block_text(b).strip()
+    ]
 
-    if not lines:
+    if not items:
         return f"{matched.title()}'s wishlist is empty."
-    return f"{matched.title()}'s wishlist:\n" + "\n".join(lines)
+    return f"{matched.title()}'s wishlist:\n" + "\n".join(items)
 
 
 def remove_from_wishlist(item, person):
