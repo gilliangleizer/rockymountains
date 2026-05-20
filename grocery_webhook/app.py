@@ -33,22 +33,36 @@ SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You mana
 - Keep replies short and friendly."""
 
 
+ALLOWED_NUMBERS = [n.strip() for n in os.environ.get("ALLOWED_NUMBERS", "").split(",") if n.strip()]
+
+PHONE_ALIASES = {
+    "whatsapp:+13038757999": "Mark",
+    "whatsapp:+12018870125": "Gillian",
+    "whatsapp:+14043580862": "Lena",
+}
+
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     body = request.form.get("Body", "").strip()
     from_number = request.form.get("From", "unknown")
 
+    normalized = from_number.removeprefix("whatsapp:")
+    if ALLOWED_NUMBERS and normalized not in ALLOWED_NUMBERS and from_number not in ALLOWED_NUMBERS:
+        return str(MessagingResponse()), 200, {"Content-Type": "text/xml"}
+
     history = conversations[from_number]
     history.append({"role": "user", "content": body})
 
     today_str = date.today().strftime("%A, %B %-d, %Y")
+    sender_name = PHONE_ALIASES.get(from_number, "Unknown")
 
     response = claude.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=1024,
         system=[
             {"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}},
-            {"type": "text", "text": f"Today is {today_str}."},
+            {"type": "text", "text": f"Today is {today_str}. You are talking to {sender_name}."},
         ],
         tools=TOOLS,
         messages=history,

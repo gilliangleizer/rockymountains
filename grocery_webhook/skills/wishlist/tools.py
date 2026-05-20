@@ -2,10 +2,11 @@ from .notion import add_to_wishlist, view_wishlist, remove_from_wishlist
 
 SYSTEM_PROMPT_SECTION = """## Wishlist
 Family wishlist pages per person: Gillian, Dalia, Mark, Asher.
-- "add X to my wishlist" → add to Gillian's wishlist.
-- "add X to [person]'s wishlist" → add_to_wishlist.
+- "add X to my wishlist" / "what's on my wishlist" → use the current sender's name from context.
+- "add X to [person]'s wishlist" → add_to_wishlist with that person.
 - "what's on [person]'s wishlist" / "show [person]'s list" → view_wishlist.
-- "remove X from [person]'s wishlist" → remove_from_wishlist."""
+- "remove X from [person]'s wishlist" → remove_from_wishlist.
+- If sender is not in the wishlist (e.g. Lena), say so instead of guessing."""
 
 TOOLS = [
     {

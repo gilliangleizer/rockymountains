@@ -38,7 +38,7 @@ Available stores: {', '.join(STORES)}
 - Multi-line messages: treat each line as a separate item, call add_item for each.
 - "show list", "what's on my list" → view_list.
 - Remove/delete requests → remove_item.
-- "clear the list", "remove everything", "remove all" → clear_list."""
+- "clear the list", "remove everything", "remove all" → ask for confirmation first: "This will remove all items. Reply YES to confirm." Only call clear_list after the user has confirmed with YES in this conversation."""
 
 TOOLS = [
     {
