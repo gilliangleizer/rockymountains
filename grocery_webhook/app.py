@@ -31,7 +31,8 @@ SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You mana
 ## General
 - Accept any language. Translate item names to English. Reply in the user's language.
 - If the user says "change that to X" or "move that to X", use conversation history to identify the last item, remove it from its current location, and add it to the new one.
-- Keep replies short and friendly."""
+- Keep replies short and friendly.
+- If the request is unclear or outside your capabilities, say so briefly and remind the user what you can help with (grocery list, wishlists, calendar)."""
 
 
 ALLOWED_NUMBERS = [n.strip() for n in os.environ.get("ALLOWED_NUMBERS", "").split(",") if n.strip()]
@@ -87,7 +88,8 @@ def webhook():
                     results.append(handler(tool_block.input))
                 except Exception as e:
                     results.append(f"Error running {tool_block.name}: {e}")
-        reply = "\n".join(results)
+        if results:
+            reply = "\n".join(results)
     else:
         text = next((b.text for b in response.content if b.type == "text"), "")
         if text.strip():
