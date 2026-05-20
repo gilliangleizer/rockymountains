@@ -83,25 +83,48 @@ def add_to_wishlist(item, person):
     return f"Error: {resp.json().get('message', 'unknown error')}"
 
 
+def _get_blocks_recursive(block_id, indent=0):
+    """Fetch blocks and their nested children, returning (block, indent) pairs."""
+    items = []
+    url = f"{BASE_URL}/blocks/{block_id}/children"
+    params = {"page_size": 100}
+    while True:
+        resp = requests.get(url, headers=_headers(), params=params)
+        data = resp.json()
+        if resp.status_code != 200:
+            raise RuntimeError(f"Notion API error {resp.status_code}: {data.get('message', data)}")
+        for block in data.get("results", []):
+            items.append((block, indent))
+            if block.get("has_children"):
+                items.extend(_get_blocks_recursive(block["id"], indent + 1))
+        if not data.get("has_more"):
+            break
+        params["start_cursor"] = data["next_cursor"]
+    return items
+
+
 def view_wishlist(person):
     page_id, matched = _find_person(person)
     if not page_id:
         return f"No wishlist for '{person}'. Known: {', '.join(WISHLIST_PAGES.keys())}"
 
     try:
-        blocks = _get_blocks(page_id)
+        entries = _get_blocks_recursive(page_id)
     except RuntimeError as e:
         return str(e)
 
-    items = [
-        f"  • {_block_text(b).strip()}"
-        for b in blocks
-        if b["type"] == "bulleted_list_item" and _block_text(b).strip()
-    ]
+    BULLETS = ["•", "◦", "▪"]
+    lines = []
+    for block, indent in entries:
+        if block["type"] == "bulleted_list_item":
+            text = _block_text(block).strip()
+            if text:
+                bullet = BULLETS[min(indent, len(BULLETS) - 1)]
+                lines.append("  " * indent + f"{bullet} {text}")
 
-    if not items:
+    if not lines:
         return f"{matched.title()}'s wishlist is empty."
-    return f"{matched.title()}'s wishlist:\n" + "\n".join(items)
+    return f"{matched.title()}'s wishlist:\n" + "\n".join(lines)
 
 
 def remove_from_wishlist(item, person):
