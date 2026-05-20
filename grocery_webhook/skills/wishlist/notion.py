@@ -1,14 +1,22 @@
 import os
+import time
 import requests
 
 BASE_URL = "https://api.notion.com/v1"
+WISHLISTS_PARENT_ID = "dd5e66cc617946a5ab6f0cac78c8fa10"
 
-WISHLIST_PAGES = {
-    "gillian": "3cc46a83-e8b3-430f-ac5e-9bf8f5a30d97",
-    "dalia": "3dbb2c8a-7476-432c-8341-70fd4172978c",
-    "mark": "be6aff962a5f487c80dec5be28f48d9e",
-    "asher": "26a34320-f7a5-804e-a42b-c1980b97565f",
-}
+_cache = {"pages": {}, "loaded_at": 0}
+
+
+def _get_wishlist_pages():
+    if time.time() - _cache["loaded_at"] > 3600:
+        blocks = _get_blocks(WISHLISTS_PARENT_ID)
+        _cache["pages"] = {
+            b["child_page"]["title"].lower(): b["id"]
+            for b in blocks if b["type"] == "child_page"
+        }
+        _cache["loaded_at"] = time.time()
+    return _cache["pages"]
 
 
 def _headers():
@@ -21,7 +29,7 @@ def _headers():
 
 def _find_person(person):
     person_lower = person.lower()
-    for name, page_id in WISHLIST_PAGES.items():
+    for name, page_id in _get_wishlist_pages().items():
         if person_lower in name or name in person_lower:
             return page_id, name
     return None, None
@@ -52,7 +60,7 @@ def _block_text(block):
 def add_to_wishlist(item, person):
     page_id, matched = _find_person(person)
     if not page_id:
-        return f"No wishlist for '{person}'. Known: {', '.join(WISHLIST_PAGES.keys())}"
+        return f"No wishlist for '{person}'. Known: {', '.join(_get_wishlist_pages().keys())}"
 
     try:
         blocks = _get_blocks(page_id)
@@ -86,7 +94,7 @@ def add_to_wishlist(item, person):
 def view_wishlist(person):
     page_id, matched = _find_person(person)
     if not page_id:
-        return f"No wishlist for '{person}'. Known: {', '.join(WISHLIST_PAGES.keys())}"
+        return f"No wishlist for '{person}'. Known: {', '.join(_get_wishlist_pages().keys())}"
 
     try:
         blocks = _get_blocks(page_id)
