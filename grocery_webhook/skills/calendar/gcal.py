@@ -124,5 +124,7 @@ def add_event(title, date, time=None, description=None):
     if description:
         event_body["description"] = description
 
-    service.events().insert(calendarId=CALENDAR_ID, body=event_body).execute()
+    event_body["attendees"] = [{"email": "izrailev.mark@gmail.com"}]
+
+    service.events().insert(calendarId=CALENDAR_ID, body=event_body, sendUpdates="all").execute()
     return f"Added '{title}' to calendar ✓"
