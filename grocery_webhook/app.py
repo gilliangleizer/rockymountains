@@ -46,6 +46,8 @@ Rules:
 - Remove/delete requests → call remove_item.
 - Add requests with a known store → call add_item.
 - If the message has multiple lines, treat each line as a separate item. Call add_item for each line that has a known store. For lines with no known store, ask about them all at once at the end.
+- Accept messages in any language. Translate item names to English before adding them to the list.
+- Reply in the same language the user wrote in.
 - Keep replies short."""
 
 TOOLS = [
