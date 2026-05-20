@@ -106,7 +106,7 @@ def add_event(title, date, time=None, description=None):
     if time:
         try:
             start_dt = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M").replace(tzinfo=ZoneInfo(TIMEZONE))
-            end_dt = start_dt + timedelta(hours=1)
+            end_dt = start_dt + timedelta(minutes=30)
             event_body = {
                 "summary": title,
                 "start": {"dateTime": start_dt.isoformat(), "timeZone": TIMEZONE},
