@@ -36,7 +36,17 @@ def _format_dt(dt_str):
         return dt_str
 
 
-def view_events(start_date=None, end_date=None):
+def _event_matches_person(event, person):
+    person_lower = person.lower()
+    text = " ".join([
+        event.get("summary", ""),
+        event.get("description", ""),
+        event.get("location", ""),
+    ]).lower()
+    return person_lower in text or "family" in text
+
+
+def view_events(start_date=None, end_date=None, person=None):
     try:
         service = _get_service()
     except Exception as e:
@@ -72,8 +82,12 @@ def view_events(start_date=None, end_date=None):
     ).execute()
 
     events = result.get("items", [])
+    if person:
+        events = [e for e in events if _event_matches_person(e, person)]
+
     if not events:
-        return "No events in that time range."
+        label = f"{person.title()}'s " if person else ""
+        return f"No {label}events in that time range."
 
     lines = []
     for event in events:
