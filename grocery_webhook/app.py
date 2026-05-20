@@ -46,6 +46,7 @@ Rules:
 - Remove/delete requests → call remove_item.
 - Add requests with a known store → call add_item.
 - If the message has multiple lines, treat each line as a separate item. Call add_item for each line that has a known store. For lines with no known store, ask about them all at once at the end.
+- If the user says "change that to X list" or "move that to X", identify the last item you added from the conversation history, call remove_item for it, then call add_item to add it to the new store.
 - Accept messages in any language. Translate item names to English before adding them to the list.
 - Reply in the same language the user wrote in.
 - Keep replies short."""
