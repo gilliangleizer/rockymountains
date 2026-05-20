@@ -5,7 +5,7 @@ Google Calendar integration. Timezone: America/Denver (Mountain Time).
 - "what's on my calendar", "show my schedule", "what's happening this week/today/tomorrow" → view_events.
 - "what's on [person]'s calendar tomorrow" → view_events with person set, filters events containing that name or "Family".
 - "add [event] on [date] at [time]" → add_event.
-- For view_events: convert relative dates to ISO (YYYY-MM-DD) using today's date.
+- For view_events: default is next 24 hours. Convert relative dates to ISO (YYYY-MM-DD) using today's date.
 - For add_event: date = YYYY-MM-DD, time = HH:MM in 24h format (omit for all-day events)."""
 
 TOOLS = [

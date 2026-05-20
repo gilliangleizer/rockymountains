@@ -67,7 +67,7 @@ def view_events(start_date=None, end_date=None, person=None):
         if start_date:
             time_max = time_min + timedelta(days=1)
         else:
-            time_max = now + timedelta(days=7)
+            time_max = now + timedelta(hours=24)
 
     time_min = time_min.isoformat()
     time_max = time_max.isoformat()
