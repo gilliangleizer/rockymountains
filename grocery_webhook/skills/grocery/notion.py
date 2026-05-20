@@ -39,14 +39,12 @@ def _block_text(block):
 def _stores_match(block_text, store_name):
     if block_text.lower() == store_name.lower():
         return True
-    # Fall back to checking all significant words appear (handles Notion text corruption)
     words = [w for w in re.split(r'[^a-z]+', store_name.lower()) if len(w) > 2]
     block_lower = block_text.lower()
     return bool(words) and all(w in block_lower for w in words)
 
 
 def _find_insert_position(blocks, store_name):
-    """Returns block ID to insert after for the given store section."""
     heading_idx = None
     for i, block in enumerate(blocks):
         if block["type"] == "heading_2" and _stores_match(_block_text(block), store_name):
@@ -71,7 +69,6 @@ def add_item(item, store):
     except RuntimeError as e:
         return str(e)
 
-    # Check for duplicate across all stores
     for block in blocks:
         if block["type"] == "bulleted_list_item":
             if _block_text(block).strip().lower() == item.strip().lower():

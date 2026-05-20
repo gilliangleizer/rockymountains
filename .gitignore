@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 chase_tracker/credentials.json
 chase_tracker/token.json
+client_secret.json
