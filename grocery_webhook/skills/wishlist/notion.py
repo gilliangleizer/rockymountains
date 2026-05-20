@@ -1,5 +1,6 @@
 import os
 import requests
+from concurrent.futures import ThreadPoolExecutor
 
 BASE_URL = "https://api.notion.com/v1"
 
@@ -32,7 +33,7 @@ def _get_blocks(page_id):
     url = f"{BASE_URL}/blocks/{page_id}/children"
     params = {"page_size": 100}
     while True:
-        resp = requests.get(url, headers=_headers(), params=params)
+        resp = requests.get(url, headers=_headers(), params=params, timeout=8)
         data = resp.json()
         if resp.status_code != 200:
             raise RuntimeError(f"Notion API error {resp.status_code}: {data.get('message', data)}")
@@ -41,6 +42,28 @@ def _get_blocks(page_id):
             break
         params["start_cursor"] = data["next_cursor"]
     return blocks
+
+
+def _fetch_children(block):
+    try:
+        children = [b for b in _get_blocks(block["id"]) if b["type"] == "bulleted_list_item"]
+    except Exception:
+        children = []
+    return block["id"], children
+
+
+def _get_all_items(page_id):
+    top_level = _get_blocks(page_id)
+    bullets = [b for b in top_level if b["type"] == "bulleted_list_item"]
+    needs_children = [b for b in bullets if b.get("has_children")]
+
+    children_map = {}
+    if needs_children:
+        with ThreadPoolExecutor(max_workers=5) as ex:
+            for block_id, children in ex.map(_fetch_children, needs_children):
+                children_map[block_id] = children
+
+    return [{"block": b, "children": children_map.get(b["id"], [])} for b in bullets]
 
 
 def _block_text(block):
@@ -89,19 +112,23 @@ def view_wishlist(person):
         return f"No wishlist for '{person}'. Known: {', '.join(WISHLIST_PAGES.keys())}"
 
     try:
-        blocks = _get_blocks(page_id)
-    except RuntimeError as e:
+        entries = _get_all_items(page_id)
+    except Exception as e:
         return str(e)
 
-    items = [
-        f"• {_block_text(b).strip()}"
-        for b in blocks
-        if b["type"] == "bulleted_list_item" and _block_text(b).strip()
-    ]
+    lines = []
+    for entry in entries:
+        text = _block_text(entry["block"]).strip()
+        if text:
+            lines.append(f"• {text}")
+        for child in entry["children"]:
+            child_text = _block_text(child).strip()
+            if child_text:
+                lines.append(f"  - {child_text}")
 
-    if not items:
+    if not lines:
         return f"{matched.title()}'s wishlist is empty."
-    return f"{matched.title()}'s wishlist:\n" + "\n".join(items)
+    return f"{matched.title()}'s wishlist:\n" + "\n".join(lines)
 
 
 def remove_from_wishlist(item, person):
