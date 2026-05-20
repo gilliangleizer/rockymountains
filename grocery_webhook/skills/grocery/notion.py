@@ -118,6 +118,23 @@ def remove_item(item, store=None):
     return f"'{item}' not found on the list."
 
 
+def clear_list():
+    try:
+        blocks = _get_page_blocks()
+    except RuntimeError as e:
+        return str(e)
+
+    deleted = 0
+    for block in blocks:
+        if block["type"] == "bulleted_list_item":
+            text = _block_text(block).strip()
+            if text:
+                requests.delete(f"{BASE_URL}/blocks/{block['id']}", headers=_headers())
+                deleted += 1
+
+    return f"Cleared {deleted} items from the shopping list ✓"
+
+
 def view_list(store=None):
     blocks = _get_page_blocks()
     current_store = None

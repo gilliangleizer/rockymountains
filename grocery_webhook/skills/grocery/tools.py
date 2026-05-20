@@ -1,5 +1,5 @@
 import json
-from .notion import add_item, remove_item, view_list
+from .notion import add_item, remove_item, view_list, clear_list
 
 ITEM_STORE_MAPPINGS = {
     "milk": "Costco",
@@ -37,7 +37,8 @@ Available stores: {', '.join(STORES)}
 - Otherwise, use best judgment — never ask, just add and say where.
 - Multi-line messages: treat each line as a separate item, call add_item for each.
 - "show list", "what's on my list" → view_list.
-- Remove/delete requests → remove_item."""
+- Remove/delete requests → remove_item.
+- "clear the list", "remove everything", "remove all" → clear_list."""
 
 TOOLS = [
     {
@@ -74,10 +75,16 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "clear_list",
+        "description": "Remove all items from the entire shopping list",
+        "input_schema": {"type": "object", "properties": {}},
+    },
 ]
 
 HANDLERS = {
     "add_item": lambda inp: add_item(inp["item"], inp["store"]),
     "remove_item": lambda inp: remove_item(inp["item"], inp.get("store")),
     "view_list": lambda inp: view_list(inp.get("store")),
+    "clear_list": lambda inp: clear_list(),
 }
