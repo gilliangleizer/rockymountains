@@ -29,6 +29,10 @@ ITEM_STORE_MAPPINGS = {
     "paper towels": "Costco",
     "toilet paper": "Costco",
     "toilet brushes": "Costco",
+    "dusters": "Costco",
+    "water bottles": "Costco",
+    "diapers": "Whole Foods",
+    "baby wipes": "Amazon",
 }
 
 STORES = [

@@ -39,6 +39,10 @@ Always route these items/categories to their assigned store unless the user spec
 | Paper towels | Costco |
 | Toilet paper | Costco |
 | Toilet brushes | Costco |
+| Dusters | Costco |
+| Water bottles | Costco |
+| Diapers | Whole Foods |
+| Baby wipes | Amazon |
 
 ## Instructions
 
