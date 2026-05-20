@@ -1,6 +1,7 @@
 import os
 from collections import defaultdict
-from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import anthropic
@@ -54,7 +55,7 @@ def webhook():
     history = conversations[from_number]
     history.append({"role": "user", "content": body})
 
-    today_str = date.today().strftime("%A, %B %-d, %Y")
+    today_str = datetime.now(ZoneInfo("America/Denver")).strftime("%A, %B %-d, %Y")
     sender_name = PHONE_ALIASES.get(from_number, "Unknown")
 
     response = claude.messages.create(
