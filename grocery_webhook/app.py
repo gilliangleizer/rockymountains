@@ -42,6 +42,12 @@ PHONE_ALIASES = {
     "whatsapp:+14043580862": "Lena",
 }
 
+PHONE_TIMEZONES = {
+    "whatsapp:+13038757999": "America/Denver",
+    "whatsapp:+12018870125": "America/New_York",
+    "whatsapp:+14043580862": "America/New_York",
+}
+
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -55,7 +61,8 @@ def webhook():
     history = conversations[from_number]
     history.append({"role": "user", "content": body})
 
-    today_str = datetime.now(ZoneInfo("America/Denver")).strftime("%A, %B %-d, %Y")
+    tz = ZoneInfo(PHONE_TIMEZONES.get(from_number, "America/Denver"))
+    today_str = datetime.now(tz).strftime("%A, %B %-d, %Y")
     sender_name = PHONE_ALIASES.get(from_number, "Unknown")
 
     response = claude.messages.create(
