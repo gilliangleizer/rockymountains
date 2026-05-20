@@ -93,26 +93,15 @@ def view_wishlist(person):
     except RuntimeError as e:
         return str(e)
 
-    lines = []
-    for block in blocks:
-        if block["type"] == "bulleted_list_item":
-            text = _block_text(block).strip()
-            if text:
-                lines.append(f"• {text}")
-            if block.get("has_children"):
-                try:
-                    children = _get_blocks(block["id"])
-                    for child in children:
-                        if child["type"] == "bulleted_list_item":
-                            child_text = _block_text(child).strip()
-                            if child_text:
-                                lines.append(f"  ◦ {child_text}")
-                except Exception:
-                    pass
+    items = [
+        f"  • {_block_text(b).strip()}"
+        for b in blocks
+        if b["type"] == "bulleted_list_item" and _block_text(b).strip()
+    ]
 
-    if not lines:
+    if not items:
         return f"{matched.title()}'s wishlist is empty."
-    return f"{matched.title()}'s wishlist:\n" + "\n".join(lines)
+    return f"{matched.title()}'s wishlist:\n" + "\n".join(items)
 
 
 def remove_from_wishlist(item, person):
