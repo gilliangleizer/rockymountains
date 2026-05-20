@@ -42,9 +42,25 @@ def view_events(start_date=None, end_date=None):
     except Exception as e:
         return f"Calendar auth error: {e}"
 
-    now = datetime.now(ZoneInfo(TIMEZONE))
-    time_min = datetime.fromisoformat(start_date).isoformat() + "Z" if start_date else now.isoformat()
-    time_max = datetime.fromisoformat(end_date).isoformat() + "Z" if end_date else (now + timedelta(days=7)).isoformat()
+    tz = ZoneInfo(TIMEZONE)
+    now = datetime.now(tz)
+
+    if start_date:
+        time_min = datetime.strptime(start_date, "%Y-%m-%d").replace(hour=0, minute=0, second=0, tzinfo=tz)
+    else:
+        time_min = now
+
+    if end_date and end_date != start_date:
+        time_max = datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=tz)
+    else:
+        # Default: end of start day, or 7 days from now if no start given
+        if start_date:
+            time_max = time_min + timedelta(days=1)
+        else:
+            time_max = now + timedelta(days=7)
+
+    time_min = time_min.isoformat()
+    time_max = time_max.isoformat()
 
     result = service.events().list(
         calendarId=CALENDAR_ID,
