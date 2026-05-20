@@ -24,6 +24,11 @@ ITEM_STORE_MAPPINGS = {
     "coffee": "Whole Foods",
     "decaf coffee": "Whole Foods",
     "buckwheat": "Russian Store",
+    "laundry detergent": "Amazon",
+    "floor cleaner": "Amazon",
+    "paper towels": "Costco",
+    "toilet paper": "Costco",
+    "toilet brushes": "Costco",
 }
 
 STORES = [

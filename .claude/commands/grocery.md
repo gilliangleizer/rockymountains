@@ -34,6 +34,11 @@ Always route these items/categories to their assigned store unless the user spec
 | Coffee | Whole Foods |
 | Decaf coffee | Whole Foods |
 | Buckweat | Russian Store |
+| Laundry detergent | Amazon |
+| Floor cleaner | Amazon |
+| Paper towels | Costco |
+| Toilet paper | Costco |
+| Toilet brushes | Costco |
 
 ## Instructions
 
