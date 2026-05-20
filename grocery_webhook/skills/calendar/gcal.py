@@ -97,7 +97,7 @@ def view_events(start_date=None, end_date=None, person=None):
     return "\n".join(lines)
 
 
-def add_event(title, date, time=None, description=None):
+def add_event(title, date, time=None, description=None, end_time=None):
     try:
         service = _get_service()
     except Exception as e:
@@ -106,7 +106,10 @@ def add_event(title, date, time=None, description=None):
     if time:
         try:
             start_dt = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M").replace(tzinfo=ZoneInfo(TIMEZONE))
-            end_dt = start_dt + timedelta(minutes=30)
+            if end_time:
+                end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M").replace(tzinfo=ZoneInfo(TIMEZONE))
+            else:
+                end_dt = start_dt + timedelta(minutes=30)
             event_body = {
                 "summary": title,
                 "start": {"dateTime": start_dt.isoformat(), "timeZone": TIMEZONE},

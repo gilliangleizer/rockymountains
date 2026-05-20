@@ -6,7 +6,7 @@ Google Calendar integration. Timezone: America/Denver (Mountain Time).
 - "what's on [person]'s calendar tomorrow" → view_events with person set, filters events containing that name or "Family".
 - "add [event] on [date] at [time]" → add_event.
 - For view_events: default is next 24 hours. Convert relative dates to ISO (YYYY-MM-DD) using today's date.
-- For add_event: date = YYYY-MM-DD, time = HH:MM in 24h format (omit for all-day events)."""
+- For add_event: date = YYYY-MM-DD, time = HH:MM in 24h format (omit for all-day events), end_time = HH:MM (omit to default to 30 min). Parse ranges like "8:30-9a" into time + end_time."""
 
 TOOLS = [
     {
@@ -30,6 +30,7 @@ TOOLS = [
                 "title": {"type": "string"},
                 "date": {"type": "string", "description": "ISO date YYYY-MM-DD"},
                 "time": {"type": "string", "description": "24h time HH:MM — omit for all-day"},
+                "end_time": {"type": "string", "description": "24h end time HH:MM — omit to default to 30 min after start"},
                 "description": {"type": "string", "description": "Optional notes"},
             },
             "required": ["title", "date"],
@@ -39,5 +40,5 @@ TOOLS = [
 
 HANDLERS = {
     "view_events": lambda inp: view_events(inp.get("start_date"), inp.get("end_date"), inp.get("person")),
-    "add_event": lambda inp: add_event(inp["title"], inp["date"], inp.get("time"), inp.get("description")),
+    "add_event": lambda inp: add_event(inp["title"], inp["date"], inp.get("time"), inp.get("description"), inp.get("end_time")),
 }
