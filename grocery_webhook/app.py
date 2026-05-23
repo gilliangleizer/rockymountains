@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from skills.grocery.tools import TOOLS as GROCERY_TOOLS, HANDLERS as GROCERY_HANDLERS, SYSTEM_PROMPT_SECTION as GROCERY_PROMPT
 from skills.wishlist.tools import TOOLS as WISHLIST_TOOLS, HANDLERS as WISHLIST_HANDLERS, SYSTEM_PROMPT_SECTION as WISHLIST_PROMPT
 from skills.calendar.tools import TOOLS as CALENDAR_TOOLS, HANDLERS as CALENDAR_HANDLERS, SYSTEM_PROMPT_SECTION as CALENDAR_PROMPT
+from skills.bucketlist.tools import TOOLS as BUCKET_TOOLS, HANDLERS as BUCKET_HANDLERS, SYSTEM_PROMPT_SECTION as BUCKET_PROMPT
 
 load_dotenv()
 
@@ -17,16 +18,18 @@ app = Flask(__name__)
 claude = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 conversations = defaultdict(list)
 
-TOOLS = GROCERY_TOOLS + WISHLIST_TOOLS + CALENDAR_TOOLS
-TOOL_HANDLERS = {**GROCERY_HANDLERS, **WISHLIST_HANDLERS, **CALENDAR_HANDLERS}
+TOOLS = GROCERY_TOOLS + WISHLIST_TOOLS + CALENDAR_TOOLS + BUCKET_TOOLS
+TOOL_HANDLERS = {**GROCERY_HANDLERS, **WISHLIST_HANDLERS, **CALENDAR_HANDLERS, **BUCKET_HANDLERS}
 
-SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You manage the grocery list, family wishlists, and Google Calendar.
+SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You manage the grocery list, family wishlists, Google Calendar, and a location-based bucket list.
 
 {GROCERY_PROMPT}
 
 {WISHLIST_PROMPT}
 
 {CALENDAR_PROMPT}
+
+{BUCKET_PROMPT}
 
 ## General
 - Accept any language. Reply in the user's language.
