@@ -29,7 +29,8 @@ SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You mana
 {CALENDAR_PROMPT}
 
 ## General
-- Accept any language. Translate item names to English. Reply in the user's language.
+- Accept any language. Reply in the user's language.
+- ALWAYS pass item names to tools in English, regardless of the user's language. Translate before calling any tool.
 - If the user says "change that to X" or "move that to X", use conversation history to identify the last item, remove it from its current location, and add it to the new one.
 - Keep replies short and friendly.
 - If the request is unclear or outside your capabilities, say so briefly and remind the user what you can help with (grocery list, wishlists, calendar)."""
@@ -80,16 +81,38 @@ def webhook():
     reply = "Try: 'add milk', 'add boots to my wishlist', or 'show my calendar'."
 
     if response.stop_reason == "tool_use":
-        results = []
+        history.append({"role": "assistant", "content": response.content})
+
+        tool_results = []
         for tool_block in (b for b in response.content if b.type == "tool_use"):
             handler = TOOL_HANDLERS.get(tool_block.name)
             if handler:
                 try:
-                    results.append(handler(tool_block.input))
+                    result = handler(tool_block.input)
                 except Exception as e:
-                    results.append(f"Error running {tool_block.name}: {e}")
-        if results:
-            reply = "\n".join(results)
+                    result = f"Error running {tool_block.name}: {e}"
+            else:
+                result = f"Unknown tool: {tool_block.name}"
+            tool_results.append({
+                "type": "tool_result",
+                "tool_use_id": tool_block.id,
+                "content": result,
+            })
+
+        history.append({"role": "user", "content": tool_results})
+        followup = claude.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1024,
+            system=[
+                {"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": f"Today is {today_str}. You are talking to {sender_name}."},
+            ],
+            tools=TOOLS,
+            messages=history,
+        )
+        text = next((b.text for b in followup.content if b.type == "text"), "")
+        if text.strip():
+            reply = text.strip()
     else:
         text = next((b.text for b in response.content if b.type == "text"), "")
         if text.strip():
