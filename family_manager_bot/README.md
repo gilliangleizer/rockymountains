@@ -1,6 +1,6 @@
 # Family Manager Bot
 
-A WhatsApp assistant for the Gleizer-Izrailev family. Send a text and it manages your grocery list, wishlists, calendar, and bucket list — all backed by Notion and Google Calendar.
+A WhatsApp assistant for the Gleizer-Izrailev family. Send a text and it manages your grocery list, wishlists, calendar, bucket list, and home thermostat — backed by Notion, Google Calendar, and Seam.
 
 ---
 
@@ -14,6 +14,7 @@ A WhatsApp assistant for the Gleizer-Izrailev family. Send a text and it manages
 | Hosting | Render |
 | Data (grocery, wishlists, bucket list) | Notion API |
 | Data (calendar) | Google Calendar API v3 |
+| Data (thermostat) | Seam API (Ecobee) |
 | Language | Python 3.9+ |
 
 ---
@@ -48,9 +49,12 @@ family_manager_bot/
 │   ├── calendar/
 │   │   ├── tools.py
 │   │   └── gcal.py         # Google Calendar API calls
-│   └── bucketlist/
+│   ├── bucketlist/
+│   │   ├── tools.py
+│   │   └── notion.py       # Per-location bucket list pages
+│   └── thermostat/
 │       ├── tools.py
-│       └── notion.py       # Per-location bucket list pages
+│       └── seam.py         # Seam API calls for Ecobee thermostat
 ```
 
 Each skill exports three things that `app.py` combines:
@@ -101,6 +105,13 @@ One Notion page per location under "Bucket Lists - Places to Go, See, Eat". New 
 - `what locations do I have`
 - `remove Nobu from Japan`
 
+### Thermostat
+Controls the home Ecobee thermostat via the Seam API.
+
+- `what's the temperature at home` → current temp, humidity, mode, and setpoints
+- `set heat to 70` / `set it to 72 degrees`
+- `set to cool only` / `set to auto` / `turn off the heat`
+
 ---
 
 ## Configuration
@@ -114,6 +125,8 @@ One Notion page per location under "Bucket Lists - Places to Go, See, Eat". New 
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 | `GOOGLE_REFRESH_TOKEN` | Google OAuth refresh token |
+| `SEAM_API_KEY` | Seam API key (for Ecobee thermostat) |
+| `SEAM_DEVICE_ID` | Optional — pin to a specific thermostat device ID (auto-discovers if omitted) |
 | `ALLOWED_NUMBERS` | Comma-separated phone numbers allowed to use the bot (e.g. `+13038757999,+12018870125`) |
 | `PORT` | Server port (default: 5001) |
 

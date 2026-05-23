@@ -11,6 +11,7 @@ from skills.grocery.tools import TOOLS as GROCERY_TOOLS, HANDLERS as GROCERY_HAN
 from skills.wishlist.tools import TOOLS as WISHLIST_TOOLS, HANDLERS as WISHLIST_HANDLERS, SYSTEM_PROMPT_SECTION as WISHLIST_PROMPT
 from skills.calendar.tools import TOOLS as CALENDAR_TOOLS, HANDLERS as CALENDAR_HANDLERS, SYSTEM_PROMPT_SECTION as CALENDAR_PROMPT
 from skills.bucketlist.tools import TOOLS as BUCKET_TOOLS, HANDLERS as BUCKET_HANDLERS, SYSTEM_PROMPT_SECTION as BUCKET_PROMPT
+from skills.thermostat.tools import TOOLS as THERMOSTAT_TOOLS, HANDLERS as THERMOSTAT_HANDLERS, SYSTEM_PROMPT_SECTION as THERMOSTAT_PROMPT
 
 load_dotenv()
 
@@ -18,10 +19,10 @@ app = Flask(__name__)
 claude = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 conversations = defaultdict(list)
 
-TOOLS = GROCERY_TOOLS + WISHLIST_TOOLS + CALENDAR_TOOLS + BUCKET_TOOLS
-TOOL_HANDLERS = {**GROCERY_HANDLERS, **WISHLIST_HANDLERS, **CALENDAR_HANDLERS, **BUCKET_HANDLERS}
+TOOLS = GROCERY_TOOLS + WISHLIST_TOOLS + CALENDAR_TOOLS + BUCKET_TOOLS + THERMOSTAT_TOOLS
+TOOL_HANDLERS = {**GROCERY_HANDLERS, **WISHLIST_HANDLERS, **CALENDAR_HANDLERS, **BUCKET_HANDLERS, **THERMOSTAT_HANDLERS}
 
-SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You manage the grocery list, family wishlists, Google Calendar, and a location-based bucket list.
+SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You manage the grocery list, family wishlists, Google Calendar, a location-based bucket list, and the home thermostat.
 
 {GROCERY_PROMPT}
 
@@ -30,6 +31,8 @@ SYSTEM_PROMPT = f"""You are a family assistant accessible via WhatsApp. You mana
 {CALENDAR_PROMPT}
 
 {BUCKET_PROMPT}
+
+{THERMOSTAT_PROMPT}
 
 ## General
 - Accept any language. Reply in the user's language.
