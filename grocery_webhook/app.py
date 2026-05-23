@@ -2,7 +2,9 @@ import os
 from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from flask import Flask, request
+from functools import wraps
+from flask import abort, Flask, request
+from twilio.request_validator import RequestValidator
 from twilio.twiml.messaging_response import MessagingResponse
 import anthropic
 from dotenv import load_dotenv
@@ -50,7 +52,25 @@ PHONE_TIMEZONES = {
 }
 
 
+def validate_twilio_request(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+        signature = request.headers.get("X-Twilio-Signature", "")
+        if not auth_token:
+            abort(403)
+
+        validator = RequestValidator(auth_token)
+        if not validator.validate(request.url, request.form, signature):
+            abort(403)
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 @app.route("/webhook", methods=["POST"])
+@validate_twilio_request
 def webhook():
     body = request.form.get("Body", "").strip()
     from_number = request.form.get("From", "unknown")

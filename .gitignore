@@ -5,3 +5,5 @@ __pycache__/
 chase_tracker/credentials.json
 chase_tracker/token.json
 client_secret.json
+.venv/
+
