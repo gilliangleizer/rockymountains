@@ -54,6 +54,11 @@ PHONE_TIMEZONES = {
 }
 
 
+@app.route("/health")
+def health():
+    return "ok", 200
+
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     body = request.form.get("Body", "").strip()
